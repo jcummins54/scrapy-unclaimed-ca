@@ -4,11 +4,14 @@ from unclaimed.items import UnclaimedItem
 class CasearchSpider(scrapy.Spider):
     name = "casearch"
     allowed_domains = ["ucpi.sco.ca.gov"]
-    start_urls = [
-        "https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=29180000",
-        #"https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=9956496"
-    ]
-    offset = 29180001
+
+    def build_urls(self):
+        urls = []
+        for x in range(29200000, 29300000):
+            urls.append("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(x))
+        return urls
+
+    start_urls = build_urls()
 
     def parse(self, response):
         item = UnclaimedItem()
@@ -23,14 +26,8 @@ class CasearchSpider(scrapy.Spider):
         item['address'] = address
 
         item['type'] = response.xpath("//td[@id='PropertyTypeData']/text()").extract()[0].strip()
-        item['cash'] = float(response.xpath("//td[@id='ctl00_ContentPlaceHolder1_CashReportData']/text()").extract()[0].strip()\
-            .replace("$", "").replace(",", ""))
+        item['cash'] = float(response.xpath("//td[@id='ctl00_ContentPlaceHolder1_CashReportData']/text()").extract()[0].strip() \
+            .split()[0].replace("$", "").replace(",", ""))
         item['reportedby'] = response.xpath("//td[@id='ReportedByData']/text()").extract()[0].strip()
-        self.offset += 1
-        if self.offset < 29190000:
-        #if self.offset < 29188810:
-            yield self.next_request()
-        yield item
 
-    def next_request(self):
-        return scrapy.Request("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(self.offset))
+        yield item

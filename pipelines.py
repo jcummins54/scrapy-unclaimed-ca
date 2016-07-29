@@ -31,7 +31,7 @@ class DataPipeline(object):
     def open_spider(self, spider):
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
-        self.db[self.collection_name].remove()
+        #self.db[self.collection_name].remove()
 
     def close_spider(self, spider):
         self.client.close()

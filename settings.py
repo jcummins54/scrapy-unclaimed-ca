@@ -21,16 +21,21 @@ NEWSPIDER_MODULE = 'unclaimed.spiders'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
+# Settings recommended for broad crawls
+RETRY_ENABLED = False
+REDIRECT_ENABLED = False
+DOWNLOAD_TIMEOUT = 7
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 64
+CONCURRENT_REQUESTS = 100
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 #DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 32
-CONCURRENT_REQUESTS_PER_IP = 32
+CONCURRENT_REQUESTS_PER_DOMAIN = 100
+CONCURRENT_REQUESTS_PER_IP = 100
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -53,7 +58,7 @@ CONCURRENT_REQUESTS_PER_IP = 32
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'unclaimed.middlewares.MyCustomDownloaderMiddleware': 543,
+#    'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': 1,
 #}
 
 # Enable or disable extensions
@@ -62,15 +67,13 @@ CONCURRENT_REQUESTS_PER_IP = 32
 #    'scrapy.extensions.telnet.TelnetConsole': None,
 #}
 
-#MONGO_URI = "localhost:27017"
 MONGO_URI = "localhost"
-
 MONGO_DATABASE = "unclaimed"
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'unclaimed.pipelines.JsonWriterPipeline': 100,
+    #'unclaimed.pipelines.JsonWriterPipeline': 100,
     'unclaimed.pipelines.DataPipeline': 300
 }
 
