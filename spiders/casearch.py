@@ -1,17 +1,58 @@
 import scrapy
+import pymongo
 from unclaimed.items import UnclaimedItem
 
 class CasearchSpider(scrapy.Spider):
     name = "casearch"
     allowed_domains = ["ucpi.sco.ca.gov"]
+    start_urls = []
 
-    def build_urls(self):
-        urls = []
-        for x in range(29200000, 29300000):
-            urls.append("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(x))
-        return urls
+    def __init__(self, start=None, end=None, *args, **kwargs):
+        start = int(start)
+        end = int(end)
 
-    start_urls = build_urls()
+        out_of_range = False
+
+        if (start < 3427562):
+            print('\nERROR: start RecID ' + str(start) + ' below allowed range: < 3427562 - 36500536')
+            out_of_range = True
+
+        if (end > 36500536):
+            print('\nERROR: end RecID ' + str(end) + ' above allowed range: 3427562 - 36500536')
+            out_of_range = True
+
+        if out_of_range:
+            print('\nEXITING... NOTHING WILL BE SCRAPED\n')
+        else:
+            super(CasearchSpider, self).__init__(*args, **kwargs)
+
+            for x in range(start, end):
+                # exists = self.db[self.collection_name].find({ "recid": str(x) }, { "recid": 1 }).count()
+                # if (exists > 0):
+                #     continue
+
+                self.start_urls.append("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(x))
+
+    # def start_requests(self):
+    #     #print("Existing settings: %s" % self.settings.attributes.keys())
+    #     self.client = pymongo.MongoClient(self.settings.get('MONGO_URI'))
+    #     self.db = self.client[self.settings.get('MONGO_DATABASE', 'items')]
+    #     self.collection_name = 'items'
+    #
+    #     urls = []
+    #     #upper limit: 36500536
+    #     #lower limit: 3427562
+    #
+    #     for x in range(3420000, 3430000):
+    #         # exists = self.db[self.collection_name].find({ "recid": str(x) }, { "recid": 1 }).count()
+    #         # if (exists > 0):
+    #         #     continue
+    #         urls.append(scrapy.Request("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(x)))
+    #     print("===================")
+    #     print("urls to crawl: " + str(len(urls)))
+    #     print("===================")
+    #
+    #     return urls
 
     def parse(self, response):
         item = UnclaimedItem()
