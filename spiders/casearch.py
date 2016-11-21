@@ -33,27 +33,6 @@ class CasearchSpider(scrapy.Spider):
 
                 self.start_urls.append("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(x))
 
-    # def start_requests(self):
-    #     #print("Existing settings: %s" % self.settings.attributes.keys())
-    #     self.client = pymongo.MongoClient(self.settings.get('MONGO_URI'))
-    #     self.db = self.client[self.settings.get('MONGO_DATABASE', 'items')]
-    #     self.collection_name = 'items'
-    #
-    #     urls = []
-    #     #upper limit: 36500536
-    #     #lower limit: 3427562
-    #
-    #     for x in range(3420000, 3430000):
-    #         # exists = self.db[self.collection_name].find({ "recid": str(x) }, { "recid": 1 }).count()
-    #         # if (exists > 0):
-    #         #     continue
-    #         urls.append(scrapy.Request("https://ucpi.sco.ca.gov/ucp/PropertyDetails.aspx?propertyRecID=" + str(x)))
-    #     print("===================")
-    #     print("urls to crawl: " + str(len(urls)))
-    #     print("===================")
-    #
-    #     return urls
-
     def parse(self, response):
         item = UnclaimedItem()
         header_data = response.xpath("//table[@id='tbl_HeaderInformation']/tr/td/span/text()").extract()

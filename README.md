@@ -1,47 +1,38 @@
-To initalize project:
------------
+#Scrapy CA Unclaimed Crawler
+Requires Python, MongoDB and Scrapy
+
+####Initalize project:
 ```
 scrapy startproject unclaimed
 ```
 
-To run the crawler:
------------
+####Run the crawler:
 ```
 scrapy crawl casearch -a start=3430000 -a end=3430010
 ```
 
-Database Commands
------------
-```
-ln -sfv /usr/local/opt/mongodb/*.plist ~/Library/LaunchAgents
-launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mongodb.plist
-```
+####Mongo Database Commands:
+Use the `unclaimed` table 
 ```
 use unclaimed
-db.users.save( {username:"uncle"} )
 ```
-```
-db.items.insert({
-   id: '987654321',
-   recid: '12345678',
-   date: '07/27/2016',
-   source: 'test',
-   name: 'Test Name',
-   address: '123 Test Ave.',
-   type: 'test',
-   cash: '22.50',
-   reportedby: 'test'
-})
-```
+
+Find the people with the most money owed
 ```
 db.items.find().sort( { cash: -1 } ).limit(100).toArray()
 ```
+
+Find the most recently added
 ```
 db.items.find().sort( { recid: -1 } ).limit(1).toArray()
 ```
+
+Total results
 ```
 db.items.count()
 ```
+
+Find results in different ranges of cash owed
 ```
 db.items.find({ cash: {$gte: 50000} }).sort( { cash: 1 } ).count()
 db.items.find({ cash: {$gte: 5000, $lt: 50000} }).sort( { cash: 1 } ).count()
@@ -52,24 +43,29 @@ db.items.find({ cash: {$gte: 5, $lt: 50} }).sort( { cash: 1 } ).count()
 db.items.find({ cash: {$gt: 0, $lt: 5} }).sort( { cash: 1 } ).count()
 db.items.find({ cash: 0 }).sort( { cash: 1 } ).count()
 ```
+
+Find people not owed any cash (typically owed bonds or some other non-cash property)
 ```
 db.items.find({ cash: {$exists: false} }).sort( { cash: 1 } ).count()
 ```
+
+Find the people owed the most over $50k
 ```
 db.items.find({ cash: {$gt: 50000} }).sort( { cash: 1 } ).toArray()
 ```
 
-Create a unique index:
+Create a unique index
 ```
 db.items.createIndex( { recid: 1 }, { unique: true } )
 db.items.getIndexes()
 ```
 
-Export collection to csv:
+Export collection to csv
 ```
 mongoexport -h localhost -d unclaimed -c items --csv --fields name,reportedby,cash,source,recid,address,date,type,id --out unclaimed.csv
 ```
 
+Find the total amount in a range
 ```
 db.items.aggregate({ $match: { cash: {$gte: 50000} } }, { $group: { _id : null, sum : { $sum: "$cash" } } });
 db.items.aggregate({ $match: { cash: {$gte: 5000, $lt: 50000} } }, { $group: { _id : null, sum : { $sum: "$cash" } } });
@@ -80,18 +76,13 @@ db.items.aggregate({ $match: { cash: {$gte: 5, $lt: 50} } }, { $group: { _id : n
 db.items.aggregate({ $match: { cash: {$gt: 0, $lt: 5} } }, { $group: { _id : null, sum : { $sum: "$cash" } } });
 ```
 
-Duplicate collection:
+Duplicate a collection
 ```
 db.items.aggregate([ { $out: "items2" } ]);
 db.items.aggregate([ { $out: "items3" } ]);
 ```
 
-Find items in a range:
-```
-db.items.find({ recid: { $lt: "29100000" } }).sort( { recid: -1 } ).limit(1).toArray()
-```
-
-Cast recid to int
+Cast `recid` to `int`
 ```
 db.items3.find().forEach(function(data) {
     db.items3.update( { _id: data._id }, { $set: { recid: parseFloat(data.recid) } } );
